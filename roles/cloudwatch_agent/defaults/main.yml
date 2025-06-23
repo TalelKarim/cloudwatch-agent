@@ -1,0 +1,10 @@
+cloudwatch_agent_log_files:
+  - file_path: "/var/log/apache2/access.log"
+    log_group_name: "/aws/drupal/apache-access.log"
+    timestamp_format: "%d/%b/%Y:%H:%M:%S %z"
+  - file_path: "/var/log/apache2/error.log"
+    log_group_name: "/aws/drupal/apache-error.log"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"
+  - file_path: "/var/www/drupal/app.log"
+    log_group_name: "/aws/drupal/app.log"
+    timestamp_format: "%Y-%m-%d %H:%M:%S"

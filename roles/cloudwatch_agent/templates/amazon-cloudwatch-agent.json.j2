@@ -1,0 +1,22 @@
+{
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {% for log in cloudwatch_agent_log_files %}
+          {
+            "file_path": "{{ log.file_path }}",
+            "log_group_name": "{{ log.log_group_name }}",
+            "log_stream_name": "{instance_id}",
+            "timestamp_format": "{{ log.timestamp_format }}"
+          }{% if not loop.last %},{% endif %}
+          {% endfor %}
+        ]
+      }
+    },
+    "force_flush_interval": 15
+  },
+  "agent": {
+    "run_as_user": "root"
+  }
+}
