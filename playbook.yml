@@ -1,4 +1,39 @@
 - hosts: localhost
   become: true
+
+  vars:
+    cloudwatch_agent_dynamic_patterns:
+      - base_path: "/var/www/bo-fm/logs"
+        patterns: ["app*.log", "error*.log"]
+        log_group_prefix: "/aws/drupal-fm"
+        timestamp_format: "%Y-%m-%d %H:%M:%S"
+        
+
+  pre_tasks:
+    - name: Discover logs from dynamic patterns
+      find:
+        paths: "{{ item.base_path }}"
+        patterns: "{{ item.patterns }}"
+        recurse: yes
+        file_type: file
+      register: found_logs
+      loop: "{{ cloudwatch_agent_dynamic_patterns }}"
+      loop_control:
+        label: "{{ item.base_path }}"
+
+    - name: Flatten dynamic log list
+      set_fact:
+        dynamic_log_files: "{{ found_logs.results | map(attribute='files') | flatten }}"
+
+    - name: Merge dynamic logs into cloudwatch_agent_log_files
+      set_fact:
+        cloudwatch_agent_log_files: >-
+          {{
+            (cloudwatch_agent_log_files | default([])) + (
+              dynamic_log_files | map(attribute='path') | map('regex_replace', '(.*)', '{"file_path": "\\1", "log_group_name": "' ~ item.log_group_prefix ~ '/\\1", "timestamp_format": "' ~ item.timestamp_format ~ '"}') | map('from_yaml') | list
+            )
+          }}
+      loop: "{{ cloudwatch_agent_dynamic_patterns }}"
+
   roles:
     - cloudwatch_agent
