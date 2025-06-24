@@ -7,7 +7,6 @@
         patterns: ["app*.log", "error*.log"]
         log_group_prefix: "/aws/drupal-fm"
         timestamp_format: "%Y-%m-%d %H:%M:%S"
-        
 
   pre_tasks:
     - name: Discover logs from dynamic patterns
@@ -23,17 +22,27 @@
 
     - name: Flatten dynamic log list
       set_fact:
-        dynamic_log_files: "{{ found_logs.results | map(attribute='files') | flatten }}"
+        dynamic_log_files: "{{ found_logs.results | map(attribute='files') | flatten | list }}"
 
-    - name: Merge dynamic logs into cloudwatch_agent_log_files
+    - name: Generate structured log entries for CloudWatch Agent
       set_fact:
-        cloudwatch_agent_log_files: >-
+        dynamic_log_files_structured: >-
           {{
-            (cloudwatch_agent_log_files | default([])) + (
-              dynamic_log_files | map(attribute='path') | map('regex_replace', '(.*)', '{"file_path": "\\1", "log_group_name": "' ~ item.log_group_prefix ~ '/\\1", "timestamp_format": "' ~ item.timestamp_format ~ '"}') | map('from_yaml') | list
-            )
+            dynamic_log_files_structured | default([]) + [
+              {
+                "file_path": item,
+                "log_group_name": cloudwatch_agent_dynamic_patterns[0].log_group_prefix ~ '/' ~ (item | basename),
+                "timestamp_format": cloudwatch_agent_dynamic_patterns[0].timestamp_format
+              }
+            ]
           }}
-      loop: "{{ cloudwatch_agent_dynamic_patterns }}"
+      loop: "{{ dynamic_log_files | map(attribute='path') | list }}"
+      loop_control:
+        label: "{{ item }}"
+        
+    - name: Merge static and dynamic logs
+      set_fact:
+        cloudwatch_agent_log_files: "{{ cloudwatch_agent_log_files | default([]) + dynamic_log_files_structured }}"
 
   roles:
     - cloudwatch_agent
