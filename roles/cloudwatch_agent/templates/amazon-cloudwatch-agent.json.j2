@@ -10,7 +10,7 @@
           {
             "file_path": "{{ log.file_path }}",
             "log_group_name": "{{ log.log_group_name }}",
-            "log_stream_name": "{instance_id}_{file_name}",
+            "log_stream_name": "{instance_id}",
             "timestamp_format": "{{ log.timestamp_format }}"
           }{% if not loop.last %},{% endif %}
           {% endfor %}
