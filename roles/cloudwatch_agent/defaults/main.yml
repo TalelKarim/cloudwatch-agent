@@ -7,14 +7,14 @@ cloudwatch_agent_log_files:
     log_group_name: "/aws/drupal-fm/apache-error.log"
     timestamp_format: "%Y-%m-%d %H:%M:%S"
 
-  - file_path: "/var/www/bo-fm/logs/app.log"
+  - file_path: "/var/www/bo-fm/logs/app*.log"
     log_group_name: "/aws/drupal-fm/app.log"
     timestamp_format: "%Y-%m-%d %H:%M:%S"
 
-  - file_path: "/var/www/bo-fm/logs/error.log"
+  - file_path: "/var/www/bo-fm/logs/error*.log"
     log_group_name: "/aws/drupal-fm/error.log"
     timestamp_format: "%Y-%m-%d %H:%M:%S"
 
   - file_path: "/var/log/syslog"
-    log_group_name: "/aws/drupal-fm/syslogs/"
+    log_group_name: "/aws/drupal-fm/syslogs"
     timestamp_format: "%b %d %H:%M:%S"
