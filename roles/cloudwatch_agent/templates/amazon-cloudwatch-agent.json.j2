@@ -12,6 +12,7 @@
             "log_group_name": "{{ log.log_group_name }}",
             "log_stream_name": "{instance_id}",
             "timestamp_format": "{{ log.timestamp_format }}"
+            "initial_position": "start_of_file"
           }{% if not loop.last %},{% endif %}
           {% endfor %}
         ]

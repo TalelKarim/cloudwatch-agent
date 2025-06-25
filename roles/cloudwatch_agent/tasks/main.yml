@@ -21,3 +21,9 @@
     -a fetch-config -m ec2
     -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
     -s
+
+- name: Enable CloudWatch Agent service at boot
+  systemd:
+    name: amazon-cloudwatch-agent
+    enabled: yes
+    state: started
